@@ -7,6 +7,8 @@ use std::fmt;
 /// Protocol Version
 #[derive(Debug, PartialEq, Clone, Copy, Hash, Eq)]
 pub enum Version {
+	/// JSONRPC 1.0
+	V1,
 	/// JSONRPC 2.0
 	V2
 }
@@ -15,6 +17,7 @@ impl Serialize for Version {
 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
 	where S: Serializer {
 		match self {
+			&Version::V1 => serializer.serialize_str("1.0"),
 			&Version::V2 => serializer.serialize_str("2.0")
 		}
 	}
@@ -38,6 +41,7 @@ impl<'a> Visitor<'a> for VersionVisitor {
 
 	fn visit_str<E>(self, value: &str) -> Result<Self::Value, E> where E: de::Error {
 		match value {
+			"1.0" => Ok(Version::V1),
 			"2.0" => Ok(Version::V2),
 			_ => Err(de::Error::custom("invalid version"))
 		}
